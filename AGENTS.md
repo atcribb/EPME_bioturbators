@@ -5,9 +5,12 @@
 This repository is currently a minimal RStudio project. `EPME_bioturbators.Rproj` defines the project settings, `README.md` is the short project entry point which describes the repository structure and gives the user instructions for use, and `LICENSE` contains the project license. No source, data, or test directories exist yet. As the analysis grows, keep a predictable layout:
 
 - `R/` for reusable functions and analysis modules (`snake_case.R`)
-- `scripts/` for ordered, runnable analysis or data-processing scripts
-- `data-raw/` for source or generated inputs that can be recreated
-- `data/` for local derived data (avoid committing sensitive or very large files)
+- `scripts/` for runnable analysis scripts 
+- `scripts/data_processing` for any scripts that clean and process data-raw into data
+- `scripts/simulation` for biogeochemical reactive-transport model simulations
+- `scripts/figures` for scripts that produce manuscript figures
+- `data-raw/` for sourced inputs such as PBDB data or data from literature 
+- `data/` for cleaned and processed derived data to be used in analyses 
 - `tests/testthat/` for automated tests
 - `figures/` or `outputs/` for generated results, when appropriate
 

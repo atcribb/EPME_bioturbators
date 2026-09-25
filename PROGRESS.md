@@ -40,3 +40,7 @@
 - Removed a regenerated nested `epmebiot/` directory containing only RStudio session metadata.
 - Confirmed that `_targets.R` parses successfully and that all `testthat` tests still pass.
 - Ran `devtools::check()`: 0 errors, 0 warnings, and 1 note because `targets` is not installed in the current R library. The pipeline itself could not be executed for the same reason.
+
+### 17:53 BST — Data and document exclusions added
+
+- Extended `.gitignore` with case-insensitive patterns for CSV and compressed CSV files, common image formats, Microsoft Excel workbooks/templates, and Microsoft Word documents/templates.
