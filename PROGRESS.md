@@ -30,3 +30,13 @@
 - Added agent-only project files to `.Rbuildignore` so they are not bundled with the R package.
 - Ran `devtools::test()`: all tests passed.
 - Ran `devtools::check()`: 0 errors, 0 warnings, and 0 notes.
+
+### 15:52 BST — `targets` workflow configured
+
+- Added `targets` to the package `Suggests` dependencies.
+- Added `_targets.R` with a deterministic starter pipeline that tracks `DESCRIPTION` and derives package metadata.
+- Added `_targets/` to `.gitignore` and excluded the pipeline script and data store from package builds.
+- Documented installation and pipeline commands in `README.md`.
+- Removed a regenerated nested `epmebiot/` directory containing only RStudio session metadata.
+- Confirmed that `_targets.R` parses successfully and that all `testthat` tests still pass.
+- Ran `devtools::check()`: 0 errors, 0 warnings, and 1 note because `targets` is not installed in the current R library. The pipeline itself could not be executed for the same reason.

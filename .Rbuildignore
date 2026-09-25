@@ -2,3 +2,5 @@
 ^\.Rproj\.user$
 ^AGENTS\.md$
 ^PROGRESS\.md$
+^_targets$
+^_targets\.R$

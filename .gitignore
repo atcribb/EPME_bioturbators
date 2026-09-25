@@ -17,3 +17,6 @@ Icon
 # R package build and check artifacts
 *.Rcheck/
 *.tar.gz
+
+# targets pipeline data store
+_targets/
