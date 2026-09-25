@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# RStudio project-local state
+.Rproj.user/
+*.Rproj.user/
+
+# R session and workspace files
+*.Rhistory
+*.RData
+*.Ruserdata
+
+# R package build and check artifacts
+*.Rcheck/
+*.tar.gz
