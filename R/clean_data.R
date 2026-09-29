@@ -1,0 +1,232 @@
+# Functions to clean raw pbdb data
+library(divDyn)
+
+
+# Remove unwanted columns to reduce data size
+trim_columns <- function(dat, cols_list=NA, Standard_Long=FALSE, Standard_Short=FALSE){
+
+  #Return errors for bad inputs
+  if(Standard_Long==TRUE && Standard_Short==TRUE ||
+     Standard_Long==TRUE && Standard_Short==TRUE && !is.na(cols_list)){
+    stop("Too many column options. Select only standard long or standard short, or input your own column list.")
+  }
+  if(Standard_Long==TRUE && !is.na(cols_list) ||
+     Standard_Short==TRUE && !is.na(cols_list)){
+    stop("Too many column inputs. Only ask for one standard output OR your own column list.")
+  }
+  if(Standard_Long==TRUE && is.na(cols_list)){
+    keep_cols <- c('occurrence_no', 'collection_no', 'identified_name', 'identified_rank', 'accepted_name', 'accepted_attr', 'accepted_rank',
+                   'early_interval', 'late_interval', 'max_ma', 'min_ma', 'reference_no',
+                   'phylum', 'class', 'order', 'family', 'genus', 'abund_value', 'abund_unit',
+                   'collection_name', 'lng', 'lat', 'latlng_basis', 'paleomodel', 'geogscale',
+                   'formation', 'geological_group', 'member', 'stratscale', 'zone', 'zone_type',
+                   'lithology1', 'lithology2', 'minor_lithology2', 'environment', 'pres_mode', 'taxon_environment',
+                   'motility', 'life_habit', 'vision', 'diet', 'composition'
+                   )
+  }else if (Standard_Short==TRUE && is.na(cols_list)){
+    keep_cols <- c('occurrence_no', 'collection_no', 'collection_name', 'accepted_name',
+                   'early_interval', 'late_interval', 'max_ma', 'min_ma', 'reference_no',
+                   'phylum', 'class', 'order', 'family', 'genus',
+                   'lng', 'lat', 'formation', 'geological_group', 'member',
+                   'lithology1', 'environment', 'motility', 'life_habit', 'diet', 'composition')
+  } else{
+    keep_cols <- cols_list
+  }
+
+  #Return error if keep_cols is bull
+  if(length(keep_cols) == 0L || all(is.na(keep_cols))){
+    stop("Kept columns is blank or zero. Add desired columns to keep.")
+  }
+
+  dat_short = dat[,keep_cols]
+  return(dat_short)
+
+}
+
+# Clean at the taxonomic level - follows ddPhanero cleaning protocols
+taxonomic_clean <- function(dat){
+
+  #Following ddPhanero (Kocscis et al.)
+  #==== Taxonomic Filtering =====#
+  #omit occurrences not identified to genus level
+  dat <- subset(dat, accepted_rank %in% c('genus', 'species'))
+  dat <- dat[dat$genus!='',]
+
+  #phyla-level filtering
+  marine.phyla <- c("",
+                    "Agmata",
+                    "Annelida",
+                    "Bilateralomorpha",
+                    "Brachiopoda",
+                    "Bryozoa",
+                    "Calcispongea",
+                    "Chaetognatha",
+                    "Cnidaria",
+                    "Ctenophora",
+                    "Echinodermata",
+                    "Entoprocta",
+                    "Foraminifera",
+                    "Hemichordata",
+                    "Hyolitha",
+                    "Mollusca",
+                    "Nematoda",
+                    "Nematomorpha",
+                    "Nemertina",
+                    "Onychophora",
+                    "Petalonamae",
+                    "Phoronida",
+                    "Platyhelminthes",
+                    "Porifera",
+                    "Rhizopodea",
+                    "Rotifera",
+                    "Sarcomastigophora",
+                    "Sipuncula",
+                    "Uncertain",
+                    "Vetulicolia",
+                    "")
+  select.phyla <- (dat$phylum %in% marine.phyla) #logical vector of where phyla of interest are
+
+  #class-level filtering
+  marine.class <- c(
+    "Acanthodii",
+    "Actinopteri",
+    "Actinopterygii",
+    "Agnatha",
+    "Cephalaspidomorphi",
+    "Chondrichthyes",
+    "Cladistia",
+    "Coelacanthimorpha",
+    "Conodonta",
+    "Galeaspida",
+    "Myxini",
+    "Osteichthyes",
+    "Petromyzontida",
+    "Plagiostomi",
+    "Pteraspidomorphi",
+    "Artiopoda",
+    "Branchiopoda",
+    "Cephalocarida",
+    "Copepoda",
+    "Malacostraca",
+    "Maxillopoda",
+    "Megacheira",
+    "Merostomoidea",
+    "Ostracoda",
+    "Paratrilobita",
+    "Pycnogonida",
+    "Remipedia",
+    "Thylacocephala",
+    "Trilobita",
+    "Xiphosura"
+  )
+  select.class <- (dat$class %in% marine.class) #logical vector of where classes of interest are
+
+  #filtering for mammals
+  marine.mammals.order <- c('Cetacea', 'Sirenia')
+  select.mammals.order <- (dat$order %in% marine.mammals.order)
+
+  #and mammalian carnivores
+  marine.mammals.family <- c("Otariidae", "Phocidae", "Desmatophocidae")
+  select.mammals.family <- (dat$family %in% marine.mammals.family)
+
+  #filtering for marine reptiles
+  marine.reptiles.order <- c("Eosauropterygia",
+                             "Hupehsuchia",
+                             "Ichthyosauria",
+                             "Placodontia",
+                             "Sauropterygia",
+                             "Thalattosauria")
+  select.marine.reptiles <- (dat$order %in% marine.reptiles.order)
+
+  #filtering for sea turtles
+  turtles.family <- c("Cheloniidae",
+                      "Protostegidae",
+                      "Dermochelyidae",
+                      "Dermochelyoidae",
+                      "Toxochelyidae",
+                      "Pancheloniidae")
+  select.turtles <- (dat$family %in% turtles.family)
+
+  #finally, subset this data with the multiple filters
+  taxacleaned_dat <- dat[select.phyla | select.class | select.mammals.order | select.mammals.family | select.marine.reptiles | select.turtles ,]
+
+  #resolve homonymies by combining class names and genus names to create individual entries
+  taxacleaned_dat$clgen <- paste(taxacleaned_dat$class, taxacleaned_dat$genus)
+
+  return(taxacleaned_dat)
+
+}
+
+# Clean at the environmental level - follows ddPhanero cleaning protocols
+environment_clean <- function(dat){
+
+  #remove occurrences in environments that are more likely to be terrestrial taxa (bloat n float)
+  omit.environments <- c(
+    "\"floodplain\"", "alluvial fan", "cave", "\"channel\"", "channel lag" ,
+    "coarse channel fill", "crater lake", "crevasse splay", "dry floodplain",
+    "delta plain", "dune", "eolian indet.", "fine channel fill", "fissure fill",
+    "fluvial indet.", "fluvial-lacustrine indet.", "fluvial-deltaic indet.",
+    "glacial", "interdune", "karst indet.", "lacustrine - large",
+    "lacustrine - small", "lacustrine delta front", "lacustrine delta plain",
+    "lacustrine deltaic indet.", "lacustrine indet.",
+    "lacustrine interdistributary bay", "lacustrine prodelta", "levee", "loess",
+    "mire/swamp", "pond", "sinkhole", "spring", "tar", "terrestrial indet.",
+    "wet floodplain")
+  envclean_data <- subset(dat, !(environment %in% omit.environments)) #removal
+
+  #add environment keys
+
+
+
+return(envclean_data)
+
+}
+
+# Select palaeoenvironments - follow ddPhanero keys guide
+assign_paleoenvironments <- function(dat){
+
+  # Defense! Defense!
+  if(!requireNamespace("divDyn", quietly=TRUE)){
+    stop("The divDyn package is required. Install it with install.packages(\"divDyn\")")
+  } else{
+    library(divDyn)
+    data(keys, package="divDyn")
+    }
+
+  required_cols <- c("lithology1", "environment")
+  missing_cols <- setdiff(required_cols, colnames(dat))
+  if (length(missing_cols) > 0L){
+    stop("The input data is missing either lithology1 or environment column.")
+  }
+
+  # PBDB values can contain literal quotation marks, inconsistent case, or surrounding whitespace. Normalize them to match the divDyn keys exactly.
+  normalize_pbdb_value <- function(x) {
+    x <- tolower(trimws(as.character(x)))
+    x <- gsub('^["\']+|["\']+$', "", x)
+    x[x %in% c("", "na", "n/a", "null")] <- NA_character_
+    x
+  }
+
+  lithology <- normalize_pbdb_value(dat$lithology1)
+  environment <- normalize_pbdb_value(dat$environment)
+  lithology_keys <- lapply(keys$lith, normalize_pbdb_value)
+  environment_keys <- lapply(keys$bath, normalize_pbdb_value)
+
+  # Assign environmental variables using the normalized PBDB values.
+  dat$lith <- categorize(lithology, lithology_keys)
+  dat$bath <- categorize(environment, environment_keys)
+
+  #give those paleoenvironments
+  dat$paleoenvironment <- rep(NA, nrow(dat))
+  dat[which(dat$lith=='siliciclastic' & dat$bath=='shallow'),'paleoenvironment'] <- 'shallow_siliciclastic'
+  dat[which(dat$lith=='siliciclastic' & dat$bath=='deep'),'paleoenvironment'] <- 'deep_siliciclastic'
+  dat[which(dat$lith=='siliciclastic' & dat$bath=='unknown'),'paleoenvironment'] <- 'unclass_siliciclastic'
+  dat[which(dat$lith=='carbonate' & dat$bath=='shallow'),'paleoenvironment'] <- 'shallow_carbonate'
+  dat[which(dat$lith=='carbonate' & dat$bath=='deep'),'paleoenvironment'] <- 'deep_carbonate'
+  dat[which(dat$lith=='carbonate' & dat$bath=='unknown'),'paleoenvironment'] <- 'unclass_carbonate'
+
+  return(dat)
+
+}
+
+# Stratigraphic binning

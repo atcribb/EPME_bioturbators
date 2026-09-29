@@ -59,3 +59,24 @@
 
 - Updated `data-raw/pbdb_download.R` to load the downloaded CSV into `pbdb_dat` with `readr::read_csv(name_repair = "minimal")`.
 - Preserved duplicate PBDB headers instead of allowing `readr` to rename them to `...1`, `...2`, and similar repaired names.
+
+### 2026-09-29 — `trim_columns()` validation warning fixed
+
+- Replaced the vector-unsafe `is.na(keep_cols) || length(keep_cols) == 0` check with `length(keep_cols) == 0L || all(is.na(keep_cols))`.
+- Preserved the existing blank-column error while allowing valid multi-column `keep_cols` vectors without a coercion warning.
+
+### 2026-09-29 — `trim_columns()` tests added
+
+- Added `testthat` coverage for selecting only the requested columns and preserving their order.
+- Added warning-free error tests for empty and all-`NA` column selections.
+
+### 2026-09-29 — Cleaning-function behavior tests added
+
+- Added behavior-based tests for `taxonomic_clean()`, `environment_clean()`, and `assign_paleoenvironments()`.
+- `devtools::test()` reached 11 passing tests and 1 intentional failure: `assign_paleoenvironments()` calls misspelled `requireNameSpace()` instead of `requireNamespace()`.
+
+### 2026-09-29 — PBDB environmental values normalized
+
+- Updated `assign_paleoenvironments()` to trim whitespace, normalize case, remove literal single or double quotation marks, and treat blank-like values as missing before categorization.
+- Applied the same normalization to `divDyn::keys$lith` and `keys$bath`, accounting for quoted carbonate and siliciclastic key values such as `"limestone"`.
+- Verified that `limestone` and quoted/whitespace-padded `limestone` classify as carbonate and produce `deep_carbonate` for offshore environments.
