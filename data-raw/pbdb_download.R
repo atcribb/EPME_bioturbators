@@ -17,14 +17,14 @@ get_pbdb_data(StartInterval, EndInterval, Lithologies, Environments, Outputs,
 #Note that this will need to be manually opened, re-saved without metadata, and then reloaded to generate the .RData file
 #For instance -
 data_path = "data-raw/Capitanian-Norian_pbdb_rawdatnometa_2026-09-29.csv"
-pbdb_dat <- readr::read_csv(
+pt_data <- readr::read_csv(
   data_path,
   name_repair = "minimal",
   show_col_types = FALSE
 )
 
-colnames(pbdb_dat)
-
+pt_data <- as.data.frame(pt_data)
+#save(pt_data, file="data-raw/Capitanian-Norian_pbdb.RData")
 
 
 
