@@ -88,3 +88,8 @@
 - Corrected the interval boundary logic for both stage-table orderings.
 - Updated `bin_stages()` to use `apply()` across `bin_midpoint`, store the lookup results in `binned_dat$stage`, preserve `NA` for unassigned midpoints, and return the binned data frame.
 - Added a clear validation error for empty input data frames; documented that row sampling should use `sample()`, not `runif()`.
+
+### 2026-09-29 — Paleocoordinate data-loss reporting added
+
+- Updated `get_palaeocoordinates()` to report the number and percentage of rows removed for missing `lng`, `lat`, or `bin_midpoint` values.
+- Preserved the filtered and rotated data frame as the function return value and added required-column validation.

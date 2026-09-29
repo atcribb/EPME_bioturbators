@@ -191,3 +191,39 @@ test_that('midpoint_stage_lookup matches the right midpoints', {
 
 })
 
+test_that('get_palaeocoordinates stops when it is supposed to',{
+
+  test_one <- data.frame(occurrences=c('Rhynchonella','Rhynchonella'),
+                         lng=c(-84, -84),
+                         lat=c(36, 36))
+  expect_error(get_palaeocoordinates(test_one),
+               "The input data is missing required columns: bin_midpoint.")
+
+  test_two <- data.frame(occurrences=c('Rhynchonella','Rhynchonella'),
+                         bin_midpoint=c(355, 355))
+  expect_error(get_palaeocoordinates(test_two),
+               "The input data is missing required columns: lng, lat.")
+
+  test_three <- data.frame(occurrences=c('Rhynchonella','Rhynchonella'),
+                            lng=c(-84, -84),
+                            lat=c(36, 36),
+                            bin_midpoint=c(355, 355))
+  test_return <- palaeorotate(test_three, lng='lng', lat='lat', age='bin_midpoint', model='PALEOMAP', method='point')
+  expect_equal(get_palaeocoordinates(test_three),
+               test_return)
+
+})
+
+test_that('messy data gets squeaky clean', {
+
+  test_input <- data.frame(
+    occurrences=c('Rhynchonella','Rhynchonella','Rhynchonella','Rhynchonella','Rhynchonella'),
+    formation=c('Fort Payne Fm', 'Fort Payne', NA, NA, 'Fort Payne Formation'),
+    p_lat=c(36.9, NA, NA, 36.8, 36.7),
+    p_lng=c(-84.1, NA, NA, -84.2, -84.3)
+  )
+  test_return <- test_input[c(1,5),]
+
+  expect_equal(get_squeaky_clean(test_input, report=FALSE), test_return)
+
+})

@@ -319,8 +319,57 @@ bin_stages <- function(dat, early_stage, late_stage){
 }
 
 
-
 # Add palaeocoordinates - palaeoverse functions
+get_palaeocoordinates <- function(dat){
+
+  required_cols <- c("lng", "lat", "bin_midpoint")
+  missing_cols <- setdiff(required_cols, names(dat))
+  if (length(missing_cols) > 0L) {
+    stop(
+      sprintf("The input data is missing required columns: %s.",
+              paste(missing_cols, collapse = ", ")),
+      call. = FALSE
+    )
+  }
+
+  total_rows <- nrow(dat)
+  rows_with_missing_coordinates <- !complete.cases(dat[required_cols])
+  blank_data <- sum(rows_with_missing_coordinates)
+  lost_percent <- if (total_rows == 0L) 0 else 100 * blank_data / total_rows
+  message(sprintf(
+    "Lost %d occurrences because lng, lat, or bin_midpoint was missing.",
+    blank_data
+  ))
+
+  dat <- dat[!rows_with_missing_coordinates,]
+
+  rotated_dat <- palaeorotate(dat, lng="lng", lat="lat", age="bin_midpoint", model="PALEOMAP", method="point")
+  return(rotated_dat)
+
+}
+
+test_rotated <- get_palaeocoordinates(test_binned)
+test_rotated$p_lat
+
+# remove NAs in formation, plat, and plng
+get_squeaky_clean <- function(dat, report=TRUE){
+
+  if(report==TRUE){
+    report <- as.data.frame(matrix(NA, nrow=2, ncol=1))
+    rownames(report) <- c('NA formations', 'NA coordinates')
+    report['Lost formations:'] <- nrow(subset(dat, is.na(formation)))
+    report['Lost coordinates:'] <- nrow(subset(dat, is.na(p_lat)))
+    message(print(report))
+  }
+
+  squeaky_clean_dat <- dat[!is.na(dat$formation) & !is.na(dat$p_lat),]
+  return(squeaky_clean_dat)
+
+}
+
+
+
+
 
 
 
