@@ -54,3 +54,8 @@
 - Added deterministic `testthat` coverage for URL construction, CSV creation and contents, URL handoff, and invalid output extensions without making a live network request.
 - Ran `devtools::test()`: all 7 assertions passed.
 - Ran `devtools::check()`: 0 errors, 0 warnings, and 2 pre-existing notes concerning the unavailable suggested `targets` package and undefined globals in the reactive-transport model code.
+
+### 2026-09-29 — PBDB column-name repair fixed
+
+- Updated `data-raw/pbdb_download.R` to load the downloaded CSV into `pbdb_dat` with `readr::read_csv(name_repair = "minimal")`.
+- Preserved duplicate PBDB headers instead of allowing `readr` to rename them to `...1`, `...2`, and similar repaired names.
