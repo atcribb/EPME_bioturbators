@@ -80,3 +80,11 @@
 - Updated `assign_paleoenvironments()` to trim whitespace, normalize case, remove literal single or double quotation marks, and treat blank-like values as missing before categorization.
 - Applied the same normalization to `divDyn::keys$lith` and `keys$bath`, accounting for quoted carbonate and siliciclastic key values such as `"limestone"`.
 - Verified that `limestone` and quoted/whitespace-padded `limestone` classify as carbonate and produce `deep_carbonate` for offshore environments.
+
+### 2026-09-29 — Midpoint stage lookup repaired
+
+- Updated `midpoint_stage_lookup()` to use the installed `deeptime::stages` schema and support the equivalent older schema.
+- Added guards for missing or invalid midpoints, bounded the lookup loop, and return `NA` when a midpoint is outside the available stage range.
+- Corrected the interval boundary logic for both stage-table orderings.
+- Updated `bin_stages()` to use `apply()` across `bin_midpoint`, store the lookup results in `binned_dat$stage`, preserve `NA` for unassigned midpoints, and return the binned data frame.
+- Added a clear validation error for empty input data frames; documented that row sampling should use `sample()`, not `runif()`.

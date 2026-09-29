@@ -179,4 +179,15 @@ test_that("assign_paleoenvironments classifies lithology and bathymetry", {
   )
 })
 
+test_that('midpoint_stage_lookup matches the right midpoints', {
+  skip_if_not_installed("deeptime")
+
+  test_input <- apply(deeptime::stages[,c('max_age','min_age')], 1, mean)
+  test_return <- deeptime::stages$name
+
+  expect_equal(sapply(test_input,midpoint_stage_lookup),
+               test_return)
+
+
+})
 

@@ -229,4 +229,99 @@ assign_paleoenvironments <- function(dat){
 
 }
 
-# Stratigraphic binning
+
+midpoint_stage_lookup <- function(midpoint){
+
+  if (!is.numeric(midpoint) || length(midpoint) != 1L || is.na(midpoint)) {
+    stop("`midpoint` must be one non-missing numeric value.", call. = FALSE)
+  }
+
+  if(!requireNamespace("deeptime", quietly=TRUE)){
+    stop("The deeptime package is required. Install it with install.packages(\"deeptime\")")
+  } else{
+    library(deeptime)
+    data(stages, package="deeptime")
+  }
+
+  # `deeptime::stages` uses max_age/min_age/name. Support the equivalent bottom/top/stage names used by older versions of the table as well.
+  if (all(c("max_age", "min_age", "name") %in% names(stages))) {
+    older_age <- stages$max_age
+    younger_age <- stages$min_age
+    stage_names <- stages$name
+    stage_matches <- function(x, older, younger) {
+      x >= younger && x < older
+    }
+  } else if (all(c("bottom", "top", "stage") %in% names(stages))) {
+    older_age <- stages$bottom
+    younger_age <- stages$top
+    stage_names <- stages$stage
+    stage_matches <- function(x, older, younger) {
+      x > younger && x <= older
+    }
+  } else {
+    stop("The deeptime stages table has an unsupported column structure.", call. = FALSE)
+  }
+
+  check <- "not yet"
+  stage_match <- NA
+  stage_no <- 1
+  while(check == "not yet" && stage_no <= nrow(stages)){
+    if(!is.na(older_age[stage_no]) && !is.na(younger_age[stage_no]) && stage_matches(midpoint, older_age[stage_no], younger_age[stage_no])){
+      stage_match <- stage_names[stage_no]
+      check <- "found it"
+    } else{
+      stage_no <- stage_no + 1
+    }
+  }
+
+  return(stage_match)
+
+}
+
+# Stratigraphic binning - palaeoverse functions
+bin_stages <- function(dat, early_stage, late_stage){
+
+  # Defense!!!
+  if (!is.data.frame(dat) || nrow(dat) == 0L) {
+    stop("`dat` must be a non-empty data frame.", call. = FALSE)
+  }
+  if(!requireNamespace("palaeoverse", quietly=TRUE)){
+    stop("The palaeoverse package is required. Install it with install.packages(\"palaeoverse\")")
+  } else{
+    library(palaeoverse)
+  }
+  if(!requireNamespace("deeptime", quietly=TRUE)){
+    stop("The deeptime package is required. Install it with install.packages(\"deeptime\")")
+  } else{
+    library(deeptime)
+    data(stages, package="deeptime")
+  }
+
+  #bin into stages using palaeoverse functions
+  bins <- palaeoverse::time_bins(interval=c(early_stage, late_stage),
+                    rank="stage")
+  binned_dat <- palaeoverse::bin_time(occdf = dat, bins=bins, method='mid')
+
+  # match to stage using midpoint_stage_lookup()
+  binned_dat$stage <- apply(
+    binned_dat, 1,
+    function(row) {
+      midpoint <- as.numeric(row["bin_midpoint"])
+      if (is.na(midpoint)) {
+        NA
+      } else {
+        midpoint_stage_lookup(midpoint)
+      }
+    }
+  )
+
+  return(binned_dat)
+}
+
+
+
+# Add palaeocoordinates - palaeoverse functions
+
+
+
+
