@@ -44,3 +44,13 @@
 ### 17:53 BST — Data and document exclusions added
 
 - Extended `.gitignore` with case-insensitive patterns for CSV and compressed CSV files, common image formats, Microsoft Excel workbooks/templates, and Microsoft Word documents/templates.
+
+## 2026-09-29
+
+### 11:16 BST — PBDB CSV download implemented
+
+- Updated `get_pbdb_data()` to download the response from its generated PBDB URL to a `.csv` file and return the normalized file path.
+- Added validation for the output path and download status.
+- Added deterministic `testthat` coverage for URL construction, CSV creation and contents, URL handoff, and invalid output extensions without making a live network request.
+- Ran `devtools::test()`: all 7 assertions passed.
+- Ran `devtools::check()`: 0 errors, 0 warnings, and 2 pre-existing notes concerning the unavailable suggested `targets` package and undefined globals in the reactive-transport model code.
