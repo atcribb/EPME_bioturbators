@@ -343,13 +343,10 @@ get_palaeocoordinates <- function(dat){
 
   dat <- dat[!rows_with_missing_coordinates,]
 
-  rotated_dat <- palaeorotate(dat, lng="lng", lat="lat", age="bin_midpoint", model="PALEOMAP", method="point")
+  rotated_dat <- palaeoverse::palaeorotate(dat, lng="lng", lat="lat", age="bin_midpoint", model="PALEOMAP", method="point")
   return(rotated_dat)
 
 }
-
-test_rotated <- get_palaeocoordinates(test_binned)
-test_rotated$p_lat
 
 # remove NAs in formation, plat, and plng
 get_squeaky_clean <- function(dat, report=TRUE){

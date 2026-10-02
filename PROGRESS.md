@@ -93,3 +93,9 @@
 
 - Updated `get_palaeocoordinates()` to report the number and percentage of rows removed for missing `lng`, `lat`, or `bin_midpoint` values.
 - Preserved the filtered and rotated data frame as the function return value and added required-column validation.
+### 2026-10-02 — Targets cleaning pipeline configured
+
+- Added a targets graph that reads the metadata-free Capitanian–Norian PBDB CSV, trims it to the standard long schema, applies taxonomic and environmental cleaning as parallel branches, and assigns paleoenvironments to both results.
+- Wired the graph into `_targets.R` and added a helper script that calls `tar_visnetwork()` and writes `outputs/cleaning_pipeline_dag.html`.
+- Ran `targets::tar_make()` successfully: all six cleaning targets completed. Ran the visualisation script successfully and confirmed the HTML artifact was generated.
+- Project note: the existing `clean_data.R` functions support this staged cleaning workflow; the raw-data download helper describes a manual metadata-removal step, so the pipeline intentionally uses the existing metadata-free CSV as its input.
