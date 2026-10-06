@@ -33,6 +33,3 @@ tar_target(
   pt_data, get_squeaky_clean(pt_rotated)
 )
 )
-
-pt_data <- tar_read(pt_data)
-save(pt_data, file="data/Capitanian-Norian_cleaned_pbdb.RData")

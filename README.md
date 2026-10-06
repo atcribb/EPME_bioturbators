@@ -35,6 +35,18 @@ This calls `tar_visnetwork()` and saves `outputs/cleaning_pipeline_dag.html`.
 Generated pipeline state is stored under `_targets/` and is not committed to
 Git.
 
+The spatial subsampling quota analysis is defined in
+`scripts/data_processing/subsampling_quotas_targets.R`. It grids `pt_data` once
+at 275 km spacing, evaluates quotas from 1 to 100, and tracks the returned row
+counts and plot as targets. Read the results with:
+
+```r
+targets::tar_read(subsampling_data_return)
+targets::tar_read(subsampling_quotas_plot)
+```
+
+The plot is written to `outputs/subsampling_quotas.png`.
+
 Run the package tests with:
 
 ```r

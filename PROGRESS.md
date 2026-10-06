@@ -99,3 +99,10 @@
 - Wired the graph into `_targets.R` and added a helper script that calls `tar_visnetwork()` and writes `outputs/cleaning_pipeline_dag.html`.
 - Ran `targets::tar_make()` successfully: all six cleaning targets completed. Ran the visualisation script successfully and confirmed the HTML artifact was generated.
 - Project note: the existing `clean_data.R` functions support this staged cleaning workflow; the raw-data download helper describes a manual metadata-removal step, so the pipeline intentionally uses the existing metadata-free CSV as its input.
+### 2026-10-04 — Spatial subsampling quota targets added
+
+- Added targets for quota values 1–100, using the cleaned `pt_data` target at 275 km grid spacing and producing a returned-row-count table plus a PNG plot.
+- Reused one `palaeoverse::bin_space()` result across all quota values instead of repeating spatial binning 100 times. Preserved `subsample_space()`'s cell eligibility rule (`cell count >= 1.25 * quota`) and fixed the random seed for reproducibility.
+- Fixed a `quietly` argument typo in `subsample_space()` that prevented calls from reaching `bin_space()`.
+- Updated `_targets.R` to include the subsampling targets; removed a top-level `tar_read()`/`save()` side effect from the sourced cleaning target file.
+- Verified `tar_manifest()` and `tar_make()`: the spatial grid, quota table, and plot targets completed successfully.
